@@ -1,4 +1,5 @@
 const Service = require('../models/Service');
+const MonitoringLog = require('../models/MonitoringLog');
 const checkHealth = require('../utils/healthCheck');
 
 const createService = async (userId, serviceData) => {
@@ -39,4 +40,12 @@ const checkServiceHealth = async (serviceId, userId) => {
     return service;
 };
 
-module.exports = { createService, getUserServices, deleteService, checkServiceHealth };
+const getServiceLogs = async (serviceId, userId) => {
+    const service = await Service.findOne({ _id: serviceId, userId });
+    if (!service) {
+        throw new Error('Service not found or unauthorized');
+    }
+    return await MonitoringLog.find({ serviceId }).sort({ checkedAt: -1 }).limit(100);
+};
+
+module.exports = { createService, getUserServices, deleteService, checkServiceHealth, getServiceLogs };

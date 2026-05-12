@@ -41,4 +41,19 @@ const checkHealth = async (req, res) => {
     }
 };
 
-module.exports = { createService, getServices, deleteService, checkHealth };
+const getServiceLogs = async (req, res) => {
+    try {
+        const logs = await serviceService.getServiceLogs(req.params.id, req.user.id);
+        // Map as per requested format
+        const formattedLogs = logs.map(log => ({
+            status: log.status,
+            responseTime: log.responseTime,
+            checkedAt: log.checkedAt
+        }));
+        res.status(200).json(formattedLogs);
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message });
+    }
+};
+
+module.exports = { createService, getServices, deleteService, checkHealth, getServiceLogs };

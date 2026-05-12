@@ -4,7 +4,7 @@ const connectDB = require('./config/db');
 const server=require('http').createServer(app);
 const startMonitoring = require('./jobs/monitorServices');
 require('./workers/monitorWorker');
-
+require('./workers/deploymentWorker');
 connectDB();
 startMonitoring();
 const PORT = process.env.PORT || 5000;
