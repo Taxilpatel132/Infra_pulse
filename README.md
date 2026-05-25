@@ -77,6 +77,38 @@ The backend is organized using a layered architecture to keep routing, business 
 
 ---
 
+## 🧠 Architecture & Real Implementation Flows
+
+To make it easier to understand how **Infra Pulse** operates under the hood, here is a breakdown of the core workflows:
+
+### 1. The Deployment Pipeline (Asynchronous Tasks)
+
+Since executing deployment shell scripts (pulling code, building, restarting services) takes time, the main Node.js process is never blocked:
+
+- **Trigger:** A user hits the `/api/deployments` endpoint. The controller creates a `Deployment` record in MongoDB marked as `pending`.
+- **Queueing:** The backend pushes the deployment details to the Redis-backed **BullMQ Deployment Queue** (`queues/deploymentQueue.js`). The HTTP request immediately responds with a success status.
+- **Processing:** The `deploymentWorker.js` picks up the job in the background, updates the DB to `in-progress`, and uses `utils/executeCommand.js` to run the actual bash execution.
+- **Real-Time Logs:** Throughout the execution, the worker uses Socket.io to emit log streams back to the frontend. The user sees text auto-scrolling on the `DeploymentLogs` page instantly.
+
+### 2. Service Monitoring & Uptime Tracking
+
+- **Scheduling:** Using `node-cron` (`jobs/monitorServices.js`), the Node backend periodically wakes up (e.g., every 60 seconds) to fetch active services from the DB.
+- **Queueing Checks:** Instead of pinging them synchronously, it spreads the load by queueing each service check into the **BullMQ Monitor Queue**.
+- **Execution:** The `monitorWorker.js` processes these items. It passes the URL/IP to `utils/healthCheck.js`, checking ping, HTTP status, or custom health ports.
+- **DB & WebSockets:** Results are saved to the `MonitoringLog` model. If a service goes offline, a server event is broadcast via WebSockets to instantly turn the service's indicator red on the frontend without requiring a page refresh.
+
+### 3. Analytics Aggregation & Data Flow
+
+- When a user views the Analytics dashboard, `analyticsController` queries MongoDB to aggregate statistics (e.g., average uptime, total down incidents, deployment success rates vs. failures).
+- If an active incident occurs while viewing the dashboard, web sockets stream live metrics allowing the graphs to update on the fly in React.
+
+### 4. API & Authentication Flow
+
+- When logging in (`pages/Login.jsx`), the backend compares hashes against the `User` model using **Argon2** (`utils/hashUtils.js`).
+- A JSON Web Token (JWT) is returned and stored in the client. Subsequent calls to trigger deployments or fetch logs pass this token. The `authMiddleware.js` intercepts and validates it to ensure full systemic security.
+
+---
+
 ## 🚀 Getting Started
 
 ### Prerequisites
