@@ -1,0 +1,7 @@
+{
+  "watch": ["src"],
+  "ignore": [
+    "deployments/*",
+    "node_modules/*"
+  ]
+}

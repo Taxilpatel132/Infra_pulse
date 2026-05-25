@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Services from './pages/Services';
 import MonitoringLogs from './pages/MonitoringLogs';
 import Deployments from './pages/Deployments';
+import DeploymentLogs from './pages/DeploymentLogs';
 import Analytics from './pages/Analytics';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
         <Route path="/services" element={<Services />} />
         <Route path="/logs/:id" element={<MonitoringLogs />} />
         <Route path="/deployments" element={<Deployments />} />
+        <Route path="/deployments/:id/logs" element={<DeploymentLogs />} />
         <Route path="/analytics" element={<Analytics />} />
       </Routes>
     </BrowserRouter>

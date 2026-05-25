@@ -7,7 +7,7 @@ function MonitoringLogs() {
   const [logs, setLogs] = useState([]);
 
   useEffect(() => {
-    api.get(`/services/${id}/logs`).then(res => setLogs(res.data)).catch(console.error);
+    api.get(`api/services/${id}/logs`).then(res => setLogs(res.data)).catch(console.error);
   }, [id]);
 
   return (

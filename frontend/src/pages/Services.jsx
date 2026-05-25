@@ -6,7 +6,7 @@ function Services() {
   const [services, setServices] = useState([]);
 
   useEffect(() => {
-    api.get('/services').then(res => setServices(res.data.data)).catch(console.error);
+    api.get('api/services').then(res => setServices(res.data.data)).catch(console.error);
   }, []);
 
   return (

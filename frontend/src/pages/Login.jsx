@@ -10,8 +10,9 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post('/auth/login', { email, password });
-      localStorage.setItem('token', res.data.token);
+      const res = await api.post('api/users/login', { email, password });
+      console.log('Login response:', res.data.data.token); // Debug log
+      localStorage.setItem('token', res.data.data.token);
       navigate('/services');
     } catch (err) {
       alert('Login failed');
